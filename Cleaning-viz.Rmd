@@ -1,0 +1,37 @@
+---
+title: "Cleaning and viz"
+author: "Nerissa Nance"
+date: "February 23, 2019"
+output: html_document
+---
+The purpose of this file is to clean (as needed) as do some preliminary descriptive stats and visualizations on our variables of interest.
+
+```{r setup, include=FALSE}
+
+library(rio)
+
+
+data <- import("./data/heart.csv")
+head(data)
+names(data)
+
+
+#number of unique values in each column:
+sapply(data, function(col){length(unique(col))})
+
+#amount of missingness in each variable:
+sapply(data, function(col){table(is.na(col))})
+
+
+```
+
+## Visualization
+
+
+```{r plots}
+
+
+
+```
+
+
