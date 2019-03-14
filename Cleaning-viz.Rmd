@@ -9,7 +9,8 @@ The purpose of this file is to clean (as needed) as do some preliminary descript
 ```{r setup, include=FALSE}
 
 library(rio)
-
+library(ggplot2)
+library(ggcorrplot)
 
 data <- import("./data/heart.csv")
 head(data)
@@ -21,6 +22,7 @@ sapply(data, function(col){length(unique(col))})
 
 #amount of missingness in each variable:
 sapply(data, function(col){table(is.na(col))})
+#none! weird, must have been imputed already at some point?
 
 
 ```
@@ -30,7 +32,15 @@ sapply(data, function(col){table(is.na(col))})
 
 ```{r plots}
 
+#look for outliers
+lapply(data,function(col){
+  summary(col)})
 
+ggplot(data, aes(x=sex, y=age, group=as.factor(sex)))+geom_boxplot()
+
+
+#visualize correlations
+ggcorrplot(cor(data))
 
 ```
 
