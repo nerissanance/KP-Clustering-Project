@@ -1,0 +1,24 @@
+---
+title: "Clustering"
+author: "Amy Alabaster"
+date: "3/18/2019"
+output: html_document
+---
+
+Eventually will include clustering. Right now learning how to make an rmd for the first time! Mostly copying Nerissa.
+
+```{r setup, include=FALSE}
+#install.packages("rio")
+library(rio)
+
+data <- import("./data/heart.csv")
+head(data)
+names(data)
+
+```
+
+```{r}
+
+
+
+```
