@@ -1,0 +1,45 @@
+---
+title: "Classification"
+author: "Nerissa Nance"
+date: "March 19, 2019"
+output: html_document
+---
+
+#Classifcation
+
+
+Nerissa to edit this code:
+```{r setup, eval=FALSE}
+
+
+#### CART ####
+# install the package mda if you haven't before loading the library
+# To install the package: install.packages("tree")
+library(tree)
+
+# first argument: The left-hand-side (response) should be either a numerical vector when 
+# a regression tree will be fitted or a factor, when a classification tree is produced. 
+# The right-hand-side should be a series of numeric or factor variables separated by +. The "."
+# here is a simplified coding for all predcitors in the data x1+x2+...+x30
+# second argument: your data set
+# third argument subset: An expression specifying the subset of cases to be used (here we provide
+# the index of the training set)
+
+# train the tree using training set
+out.tre<-tree(as.factor(y)~., data, subset=id.tr)
+
+# plot the tree
+plot(out.tre)
+text(out.tre)
+
+# predict grouping of training set using the model built by training set
+G.tr.tre<-predict(out.tre, data.frame(X[id.tr,]), type="class")
+sum(G.tr.tre != G.tr) / length(G.tr)
+
+# predict grouping of testing set using the model built by training set
+G.te.tre<-predict(out.tre, data.frame(X[-id.tr,]), type="class")
+sum(G.te.tre != G.te) / length(G.te)
+
+
+
+```
