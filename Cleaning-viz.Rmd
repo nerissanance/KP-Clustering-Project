@@ -4,17 +4,39 @@ author: "Nerissa Nance"
 date: "February 23, 2019"
 output: html_document
 ---
-The purpose of this file is to clean (as needed) as do some preliminary descriptive stats and visualizations on our variables of interest.
+#Data cleaning and visualiation
+
+##Part 1: reduced dataset
+The purpose of this file is to clean (as needed) as do some preliminary descriptive stats and visualizations on our variables of interest for the reduced dataset with 14 attributes.
+
+Atribute information (from Kaggle[https://www.kaggle.com/ronitf/heart-disease-uci/version/1]):
+ 
+> 1. age 
+> 2. sex 
+> 3. chest pain type (4 values) 
+> 4. resting blood pressure 
+> 5. serum cholestoral in mg/dl 
+> 6. fasting blood sugar > 120 mg/dl
+> 7. resting electrocardiographic results (values 0,1,2)
+> 8. maximum heart rate achieved 
+> 9. exercise induced angina 
+> 10. oldpeak = ST depression induced by exercise relative to rest 
+> 11. the slope of the peak exercise ST segment 
+> 12. number of major vessels (0-3) colored by flourosopy 
+> 13. thal: 3 = normal; 6 = fixed defect; 7 = reversable defect
 
 ```{r setup, include=FALSE}
 
 library(rio)
-library(ggplot2)
+library(tidyverse)
 library(ggcorrplot)
+library(umap)
 
 data <- import("./data/heart.csv")
+
 head(data)
 names(data)
+str(data)
 
 
 #number of unique values in each column:
@@ -27,8 +49,7 @@ sapply(data, function(col){table(is.na(col))})
 
 ```
 
-## Visualization
-
+### Outcome and covariates 
 
 ```{r plots}
 
@@ -36,12 +57,40 @@ sapply(data, function(col){table(is.na(col))})
 lapply(data,function(col){
   summary(col)})
 
-ggplot(data, aes(x=sex, y=age, group=as.factor(sex)))+geom_boxplot()
+
+#outcome
+ggplot(data, aes(x=as.factor(target),fill=as.factor(target)))+geom_bar()+labs(x="heart disease",title="Number of patients with and without outcome (heart disease)")+theme_classic()+ theme(legend.position = "none")
 
 
-#visualize correlations
+ggplot(data, aes(x=target, y=age, group=as.factor(target)))+geom_boxplot()
+```
+
+### Correlations and UMAP
+```{r}
 ggcorrplot(cor(data))
+
+
+viz_umap <- umap(data)
+layout <- as.data.frame(cbind(viz_umap$layout, viz_umap$data))
+
+ggplot(data=layout,aes(V1,V2, color=as.factor(target))) + geom_point() +labs(x="UMAP1", y="UMAP2",title="Scatterplot of UMAP embeddings of heart disease data")+theme_classic()+scale_fill_continuous(name = "Presence of heart disease")
+ 
 
 ```
 
 
+##Part 2: explore larger datasets
+
+Here we will look at bringing back some of the variables that were initially in the larger heart disease datasets.
+
+```{r, include=FALSE, eval=FALSE}
+
+#load "updated" dataset
+longbeach <- read_delim("http://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/long-beach-va.data", delim=" ")
+
+hungarian <- read_delim("http://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/hungarian.data", delim=",")
+
+
+
+
+```
