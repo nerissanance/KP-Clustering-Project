@@ -90,7 +90,7 @@ longbeach <- read_delim("http://archive.ics.uci.edu/ml/machine-learning-database
 
 hungarian <- read_delim("http://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/hungarian.data", delim=",")
 
-
+cleveland <- read_delim("http://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/cleveland.data")
 
 
 ```
