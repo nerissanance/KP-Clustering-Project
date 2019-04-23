@@ -1,11 +1,11 @@
 ---
 title: "Clustering"
-author: "Amy Alabaster"
+author: "Amy Alabaster and Nerissa Nance"
 date: "3/18/2019"
 output: html_document
 ---
 
-Eventually will include clustering. Right now learning how to make an rmd for the first time! Mostly copying Nerissa.
+This report shows two possible clustering analyses: hierarchical and k-means.
 
 ```{r setup, include=FALSE}
 #install.packages("rio")
@@ -17,8 +17,29 @@ names(data)
 
 ```
 
+##Hierarchical clustering
 ```{r}
 
+X <- as.matrix(data)
+
+hc<-hclust(dist(X), "average")
+#other options: complete or average
+plot(hc)
+plot(hc, hang=-1, main="Patient characteristics", ylab=NULL)
 
 
 ```
+
+##K-means clustering
+```{r}
+
+set.seed(100)
+km<-kmeans(X, 5)
+i<-6; j<-8
+plot(X[,i], X[,j], xlab=colnames(X)[i], ylab=colnames(X)[j], type="n")
+for(s in 1:nrow(X)) {
+text(X[s,i], X[s,j], rownames(X)[s], col=km$cluster[s])
+}
+
+```
+
