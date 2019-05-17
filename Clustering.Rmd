@@ -76,6 +76,7 @@ km<-kmeans(data_s, centers = 2, nstart = 25)
 
 Objects outputted: 
 * `cluster`: A vector of integers (from 1:k) indicating the cluster to which each point is allocated.
+
 * `centers`: A matrix of cluster centers.
 * `totss`: The total sum of squares.
 * `withinss`: Vector of within-cluster sum of squares, one component per cluster.
