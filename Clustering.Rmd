@@ -2,14 +2,21 @@
 title: "Clustering"
 author: "Amy Alabaster and Nerissa Nance"
 date: "3/18/2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
+toc: yes
 ---
 
 This report shows two possible clustering analyses: hierarchical and k-means.
 
 ```{r setup, include=FALSE}
-#install.packages("rio")
+
 library(rio)
+library(mclust)
+library(tidyverse)
+library(factoextra)
+
 
 data <- import("./data/heart.csv")
 head(data)
@@ -20,9 +27,9 @@ names(data)
 ##Hierarchical clustering
 ```{r}
 
-X <- as.matrix(data)
+data_m <- as.matrix(data)
 
-hc<-hclust(dist(X), "average")
+hc<-hclust(dist(data_m), "average")
 #other options: complete or average
 plot(hc)
 plot(hc, hang=-1, main="Patient characteristics", ylab=NULL)
@@ -31,15 +38,57 @@ plot(hc, hang=-1, main="Patient characteristics", ylab=NULL)
 ```
 
 ##K-means clustering
+
+###Step 1: prep your data
+Aside from general cleaning, need to standardize the data so that the variables are comparable:
+```{r}
+data_s <- scale(data_m)
+head(data_s, n=5)
+```
+
+###Step 2: decide on a distance matrix
+There are lot of options, just as there are for heirarchical. The default is Euclidian.
+(list here)
+```{r}
+dist_m <- dist(data_s)
+
+```
+
+###Step 3: Clustering
+
+Steps from the dlab[https://github.com/dlab-berkeley/MachineLearningWG/blob/master/Fall2018/2-sep19-k-means/k-means-ucr.Rmd]:
+
+* 1. Specify the number of clusters (K) to be created (by the analyst)
+* 2. Select randomly k objects from the data set as the initial cluster centers or means
+* 3. Assigns each observation to their closest centroid, based on the Euclidean distance between the object and the centroid
+* 4. For each of the k clusters update the cluster centroid by calculating the new mean values of all the data points in the cluster. The centroid of a Kth cluster is a vector of length *p* containing the means of all variables for the observations
+in the kth cluster; *p* is the number of variables.
+* 5. Iteratively minimize the total within sum of square (Eq. 7). That is, iterate steps 3 and 4 until the cluster assignments stop changing or the maximum number of iterations is reached. By default, the R software uses 10 as the default value
+for the maximum number of iterations.
+
 ```{r}
 
 set.seed(100)
-km<-kmeans(X, 5)
-i<-6; j<-8
-plot(X[,i], X[,j], xlab=colnames(X)[i], ylab=colnames(X)[j], type="n")
-for(s in 1:nrow(X)) {
-text(X[s,i], X[s,j], rownames(X)[s], col=km$cluster[s])
-}
+km<-kmeans(data_s, centers = 2, nstart = 25)
+
+```
+
+
+Objects outputted: 
+* `cluster`: A vector of integers (from 1:k) indicating the cluster to which each point is allocated.
+* `centers`: A matrix of cluster centers.
+* `totss`: The total sum of squares.
+* `withinss`: Vector of within-cluster sum of squares, one component per cluster.
+* `tot.withinss`: Total within-cluster sum of squares, i.e. sum(withinss).
+* `betweenss`: The between-cluster sum of squares, i.e. $totss-tot.withinss$.
+* `size`: The number of points in each cluster.
+
+###Step 4: visualizing the results
+
+```{r}
+
+fviz_cluster(km, data = data_s)
+ 
 
 ```
 
