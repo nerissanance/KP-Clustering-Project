@@ -3,13 +3,14 @@ title: "Clustering"
 author: "Amy Alabaster and Nerissa Nance"
 date: "3/18/2019"
 output:
+  html_document: 
+    toc: true
   pdf_document: default
-  html_document: default
-toc: yes
+  word_document: default 
 ---
 
-This report shows two possible clustering analyses: hierarchical and k-means.
 
+#Hierarchical clustering
 ```{r setup, include=FALSE}
 
 library(rio)
@@ -25,14 +26,13 @@ names(data)
 #remove the outcome 
 
 ```
-
-#Hierarchical clustering
-
 ###Data prep and distance matrix
 
-Need to create a distance matrix from caled variables 
+Need to create a distance matrix from scaled variables 
 ```{r}
-data_dist <- dist(data_m)
+
+data_s <- scale(data)
+data_dist <- dist(data_s)
 ```
 
 ###Model fitting and dendrogram
@@ -42,13 +42,12 @@ data_m <- as.matrix(data)
 
 hc<-hclust(data_dist, "average")
 #other options: complete or average
-plot(hc)
 plot(hc, hang=-1, main="Patient characteristics", ylab=NULL)
 
 ```
 
 ###Cutree
-(add here about how to make meangingful gropus from the hclust results)
+(add here about how to make meangingful groups from the hclust results)
 
 -----------
 
@@ -72,7 +71,7 @@ fviz_dist(dist_m)
 
 ```
 
-###Step 3: Clustering
+### Clustering 
 
 Steps from the dlab[https://github.com/dlab-berkeley/MachineLearningWG/blob/master/Fall2018/2-sep19-k-means/k-means-ucr.Rmd]:
 
@@ -113,10 +112,14 @@ fviz_cluster(km, data = data_s)
 
 ```
 
-Dimension reduction and visualization with 
+
 
 
 ####Trying the same cluster analyses after dimension reduction
+
+Dimension reduction and visualization with packages like UMAP are one way to reduce your data.
+
+(add here: what is the value added of performing cluster analysis after dimension reduction..... maybe not necessary for out dataset since it's small, but helpful for larger datasets, and also always helpful for visualizations.)
 
 ```{r}
 
@@ -127,14 +130,14 @@ umap_output <- umap(data)
 
 ####Looking at covariates by cluster results 
 
-()
+(add here a table 1-like thing that looks at the demographics by cluster)
 ```{r}
 
 
 ```
 
-####Extra credit: calculating optimal 
+####Extra credit: calculating optimal number of clusters 
 
 Things to research and maybe add later: Elbow method, Silhoette method, Gap Statistic.
 
-Hopefully add these if there's time 
+Hopefully add these if there's time.
