@@ -16,41 +16,59 @@ library(rio)
 library(mclust)
 library(tidyverse)
 library(factoextra)
-
+library(umap)
 
 data <- import("./data/heart.csv")
 head(data)
 names(data)
 
+#remove the outcome 
+
 ```
 
-##Hierarchical clustering
-```{r}
+#Hierarchical clustering
 
+###Data prep and distance matrix
+
+Need to create a distance matrix from caled variables 
+```{r}
+data_dist <- dist(data_m)
+```
+
+###Model fitting and dendrogram
+
+```{r}
 data_m <- as.matrix(data)
 
-hc<-hclust(dist(data_m), "average")
+hc<-hclust(data_dist, "average")
 #other options: complete or average
 plot(hc)
 plot(hc, hang=-1, main="Patient characteristics", ylab=NULL)
 
-
 ```
 
-##K-means clustering
+###Cutree
+(add here about how to make meangingful gropus from the hclust results)
 
-###Step 1: prep your data
+-----------
+
+
+#K-means clustering
+
+###Data prep
 Aside from general cleaning, need to standardize the data so that the variables are comparable:
 ```{r}
 data_s <- scale(data_m)
 head(data_s, n=5)
 ```
 
-###Step 2: decide on a distance matrix
+###Decide on a distance matrix
 There are lot of options, just as there are for heirarchical. The default is Euclidian.
-(list here)
+(list here, link to website with more details)
 ```{r}
 dist_m <- dist(data_s)
+
+fviz_dist(dist_m)
 
 ```
 
@@ -84,7 +102,9 @@ Objects outputted:
 * `betweenss`: The between-cluster sum of squares, i.e. $totss-tot.withinss$.
 * `size`: The number of points in each cluster.
 
-###Step 4: visualizing the results
+###Visualizing the results
+
+With package factoextra: 
 
 ```{r}
 
@@ -93,3 +113,28 @@ fviz_cluster(km, data = data_s)
 
 ```
 
+Dimension reduction and visualization with 
+
+
+####Trying the same cluster analyses after dimension reduction
+
+```{r}
+
+umap_output <- umap(data)
+
+```
+
+
+####Looking at covariates by cluster results 
+
+()
+```{r}
+
+
+```
+
+####Extra credit: calculating optimal 
+
+Things to research and maybe add later: Elbow method, Silhoette method, Gap Statistic.
+
+Hopefully add these if there's time 
