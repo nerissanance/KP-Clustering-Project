@@ -24,21 +24,39 @@ head(data)
 names(data)
 
 #remove the outcome 
+data$id <- as.numeric(rownames(data))
+outcome <- data %>% select(id, target)
+datanoout <- as.data.frame(data %>% select(-target))
+class(datanoout)
 
 ```
 ###Data prep and distance matrix
 
-Need to create a distance matrix from scaled variables 
+Need to create a distance matrix from scaled variables.
+
+Choosing a distance calculation is very important, as it defines how the relationship between eelments is mesures, and will therefore characteristically affect the shape of clusters.
+
+Some options for distance matrices include:
+
+* Euclidean distance
+* Manhattan distance
+* Pearson correlation distance
+
+For more details, we
+
 ```{r}
 
-data_s <- scale(data)
+data_s <- scale(datanoout)
+options(scipen=999)
+apply(data_s,2, function(x){round(summary(x),2)})
 data_dist <- dist(data_s)
+fviz_dist(data_dist)
 ```
 
 ###Model fitting and dendrogram
 
 ```{r}
-data_m <- as.matrix(data)
+ 
 
 hc<-hclust(data_dist, "average")
 #other options: complete or average
@@ -67,7 +85,7 @@ There are lot of options, just as there are for heirarchical. The default is Euc
 ```{r}
 dist_m <- dist(data_s)
 
-fviz_dist(dist_m)
+
 
 ```
 
@@ -115,20 +133,27 @@ fviz_cluster(km, data = data_s)
 
 
 
-####Trying the same cluster analyses after dimension reduction
+#Trying the same cluster analyses after dimension reduction
 
 Dimension reduction and visualization with packages like UMAP are one way to reduce your data.
 
 (add here: what is the value added of performing cluster analysis after dimension reduction..... maybe not necessary for out dataset since it's small, but helpful for larger datasets, and also always helpful for visualizations.)
 
+(add here: repeat 1-2 of the analyses with the reduced dataset)
+
 ```{r}
 
 umap_output <- umap(data)
 
+layout <- as.data.frame(cbind(umap_output$layout, umap_output$data))
+
+ggplot(data=layout,aes(V1,V2, color=as.factor(target))) + geom_point() +labs(x="UMAP1", y="UMAP2",title="Scatterplot of UMAP embeddings of heart disease data")+theme_classic()+scale_fill_continuous(name = "Presence of heart disease")
+ 
+
 ```
 
 
-####Looking at covariates by cluster results 
+#Covariate table by cluster  
 
 (add here a table 1-like thing that looks at the demographics by cluster)
 ```{r}
@@ -136,7 +161,7 @@ umap_output <- umap(data)
 
 ```
 
-####Extra credit: calculating optimal number of clusters 
+# calculating optimal number of clusters 
 
 Things to research and maybe add later: Elbow method, Silhoette method, Gap Statistic.
 
