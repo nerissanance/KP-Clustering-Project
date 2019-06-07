@@ -9,7 +9,6 @@ output:
   word_document: default 
 ---
 
-
 #Hierarchical clustering
 ```{r setup, include=FALSE}
 
@@ -18,49 +17,69 @@ library(mclust)
 library(tidyverse)
 library(factoextra)
 library(umap)
+library(Rtsne)
 
 data <- import("./data/heart.csv")
 head(data)
 names(data)
 
 #remove the outcome 
-data$id <- as.numeric(rownames(data))
-outcome <- data %>% select(id, target)
-datanoout <- as.data.frame(data %>% select(-target))
-class(datanoout)
 
 ```
+###T-sne
+```{r}
+#run tsne
+set.seed(7)  
+tsne_model = Rtsne(as.matrix(data), check_duplicates=FALSE, pca=TRUE, perplexity=30, theta=0.25, dims=2, max_iter=5000)
+
+#get data frame
+tsne_dat = as.data.frame(tsne_model$Y)  
+tsne_dat$target=as.factor(data$target)
+
+#plotting
+ggplot(tsne_dat, aes(x=V1, y=V2, color=target)) +  
+  geom_point(size=0.25) +
+  xlab("") + ylab("") +
+  ggtitle("t-SNE") +
+  theme_light(base_size=20) +
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_blank()) 
+```
+
 ###Data prep and distance matrix
 
-Need to create a distance matrix from scaled variables.
-
-Choosing a distance calculation is very important, as it defines how the relationship between eelments is mesures, and will therefore characteristically affect the shape of clusters.
-
-Some options for distance matrices include:
-
-* Euclidean distance
-* Manhattan distance
-* Pearson correlation distance
-
-For more details, we
-
+Need to create a distance matrix from scaled variables 
 ```{r}
 
-data_s <- scale(datanoout)
-options(scipen=999)
-apply(data_s,2, function(x){round(summary(x),2)})
+data_s <- scale(data)
 data_dist <- dist(data_s)
-fviz_dist(data_dist)
 ```
 
 ###Model fitting and dendrogram
 
 ```{r}
- 
+data_m <- as.matrix(data)
 
 hc<-hclust(data_dist, "average")
 #other options: complete or average
 plot(hc, hang=-1, main="Patient characteristics", ylab=NULL)
+
+#cutree for plotting in tsne
+tsne_dat$cl_hierarchical = factor(cutree(hc, k=3))
+
+#plot on tsne (currently looks awful - but code is here)
+ggplot(tsne_dat, aes_string(x="V1", y="V2", color="cl_hierarchical")) +
+  geom_point(size=0.25) +
+  guides(colour=guide_legend(override.aes=list(size=6))) +
+  xlab("") + ylab("") +
+  ggtitle("Hierarchical on t-SNE") +
+  theme_light(base_size=20) +
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        legend.direction = "horizontal", 
+        legend.position = "bottom",
+        legend.box = "horizontal") + 
+    scale_colour_brewer(palette = "Set1") 
 
 ```
 
@@ -85,7 +104,7 @@ There are lot of options, just as there are for heirarchical. The default is Euc
 ```{r}
 dist_m <- dist(data_s)
 
-
+fviz_dist(dist_m)
 
 ```
 
@@ -127,33 +146,39 @@ With package factoextra:
 
 fviz_cluster(km, data = data_s)
  
-
+#kmens with tsne
+tsne_dat$cl_kmeans = factor(km$cluster)
+ggplot(tsne_dat, aes_string(x="V1", y="V2", color="cl_kmeans")) +
+  geom_point(size=0.25) +
+  guides(colour=guide_legend(override.aes=list(size=6))) +
+  xlab("") + ylab("") +
+  ggtitle("Kmeans plotted using t-SNE") +
+  theme_light(base_size=20) +
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        legend.direction = "horizontal", 
+        legend.position = "bottom",
+        legend.box = "horizontal") + 
+    scale_colour_brewer(palette = "Set1") 
 ```
 
 
 
 
-#Trying the same cluster analyses after dimension reduction
+####Trying the same cluster analyses after dimension reduction
 
 Dimension reduction and visualization with packages like UMAP are one way to reduce your data.
 
 (add here: what is the value added of performing cluster analysis after dimension reduction..... maybe not necessary for out dataset since it's small, but helpful for larger datasets, and also always helpful for visualizations.)
 
-(add here: repeat 1-2 of the analyses with the reduced dataset)
-
 ```{r}
 
 umap_output <- umap(data)
 
-layout <- as.data.frame(cbind(umap_output$layout, umap_output$data))
-
-ggplot(data=layout,aes(V1,V2, color=as.factor(target))) + geom_point() +labs(x="UMAP1", y="UMAP2",title="Scatterplot of UMAP embeddings of heart disease data")+theme_classic()+scale_fill_continuous(name = "Presence of heart disease")
- 
-
 ```
 
 
-#Covariate table by cluster  
+####Looking at covariates by cluster results 
 
 (add here a table 1-like thing that looks at the demographics by cluster)
 ```{r}
@@ -161,7 +186,7 @@ ggplot(data=layout,aes(V1,V2, color=as.factor(target))) + geom_point() +labs(x="
 
 ```
 
-# calculating optimal number of clusters 
+####Extra credit: calculating optimal number of clusters 
 
 Things to research and maybe add later: Elbow method, Silhoette method, Gap Statistic.
 
